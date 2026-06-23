@@ -72,11 +72,21 @@ function initThemeToggle() {
   const icon = document.getElementById('theme-icon');
   if (!btn || !icon) return;
 
-  let dark = false;
+  // Check local storage or system preference
+  const savedTheme = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  let dark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+
+  // Apply initial state
+  document.documentElement.classList.toggle('dark', dark);
+  icon.textContent = dark ? 'dark_mode' : 'light_mode';
+
   btn.addEventListener('click', () => {
     dark = !dark;
     document.documentElement.classList.toggle('dark', dark);
     icon.textContent = dark ? 'dark_mode' : 'light_mode';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
     // Re-evaluate header state after theme switch
     updateHeader();
   });
@@ -92,19 +102,21 @@ function updateHeader() {
   const header    = document.getElementById('site-header');
   const nameEl    = document.getElementById('header-name');
   const rightEl   = document.getElementById('header-right');
-  if (!header || !nameEl || !rightEl) return;
+  if (!header || !rightEl) return;
 
   const dark      = document.documentElement.classList.contains('dark');
   const scrolled  = window.scrollY > 80;
 
   header.classList.toggle('scrolled', scrolled);
 
+  const targets = nameEl ? [nameEl, rightEl] : [rightEl];
+
   if (scrolled) {
     // Filled state — glass pill
     const bg  = dark ? 'rgba(14,12,10,0.85)' : 'rgba(252,249,240,0.85)';
     const bdr = dark ? 'rgba(255,255,255,0.12)' : 'rgba(20,16,12,0.15)';
 
-    [nameEl, rightEl].forEach(el => {
+    targets.forEach(el => {
       el.style.backgroundColor = bg;
       el.style.backdropFilter   = 'blur(16px)';
       el.style.borderColor      = bdr;
@@ -113,7 +125,7 @@ function updateHeader() {
     header.style.top = '1.5rem';
   } else {
     // Transparent state — no background
-    [nameEl, rightEl].forEach(el => {
+    targets.forEach(el => {
       el.style.backgroundColor = 'transparent';
       el.style.backdropFilter   = 'none';
       el.style.removeProperty('borderColor'); // Let styles handle it

@@ -118,7 +118,7 @@
     </script>
 
     <!-- Custom styles -->
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}?v={{ file_exists(public_path('css/styles.css')) ? filemtime(public_path('css/styles.css')) : time() }}" />
 
     @stack('styles')
 </head>
@@ -130,7 +130,7 @@
 
     @yield('content')
 
-    <script src="{{ asset('js/main.js') }}"></script>
+    <script src="{{ asset('js/main.js') }}?v={{ file_exists(public_path('js/main.js')) ? filemtime(public_path('js/main.js')) : time() }}"></script>
     @stack('scripts')
 </body>
 
