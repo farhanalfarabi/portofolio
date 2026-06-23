@@ -43,3 +43,17 @@ jobs:
           SOURCE: "./"
           TARGET: "~/domains/elfaraby.com/public_html/farhan/"
           ARGS: "-rltgoDzvO --delete --exclude='.git/' --exclude='.github/' --exclude='node_modules/' --exclude='.env' --exclude='storage/logs/' --exclude='storage/framework/cache/'"
+
+      - name: Run post-deploy commands via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ~/domains/elfaraby.com/public_html/farhan
+            php artisan migrate --force
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
